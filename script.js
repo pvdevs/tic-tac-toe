@@ -8,6 +8,7 @@ board.forEach((field) => {
         const id = getPositionById(field.id);
         console.log(id);
         gameBoard.getMarker('x' ,id[0],id[1]);
+        displayController.displayMarker('x', id[0], id[1]);
         console.log(gameBoard.board);
     })
 });
@@ -25,15 +26,9 @@ const gameBoard = (() => {
 //
 
 const displayController = (() => {
-    const displayMarker = () => {
-
-        board.forEach((field) => {
-            field.addEventListener('click', ()=> {
-                const id = getPositionById(field.id);
-                console.log(id);
-                gameBoard.getMarker('x' ,id[0],id[1]);
-            })
-        });
+    const displayMarker = (marker,x,y) => {
+        const field = document.getElementById(`${x}${y}`);
+        field.classList.add('paint');
     }
     return {displayMarker};
 })();

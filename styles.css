@@ -17,3 +17,7 @@ body, p, h1, h2 ,h3{
 .board-field{
     border: 1px solid #292929;
 }
+
+.paint{
+    background-color: red;
+}
