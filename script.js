@@ -37,6 +37,9 @@ const gameBoard = (() => {
 
     let playerBallTurn = false;
 
+    const isBallTurn = () => playerBallTurn; //Function used to export which round the game is currently;
+
+
     const checkWin = (roundPlayer) => {
         const fieldCheck = winCombinations.some((combination) => {
             const playerXWon = combination.every(field => playerX.playerFields.includes(field));
@@ -48,8 +51,7 @@ const gameBoard = (() => {
     }
 
     const playerTurn = (field) => {
-        //!playerBallTurn ? playerX.getMove(field) : playerO.getMove(field);
-        if(!playerBallTurn) {
+        if(!playerBallTurn) { // Remember to turn all of this into a ternary if
             console.log('Player X Turn!');
             playerX.getMove(field);
             console.log('player X Field ' + playerX.playerFields);
@@ -59,12 +61,13 @@ const gameBoard = (() => {
             playerO.getMove(field);
             console.log('player O Field ' + playerO.playerFields);
         }
+
         playerBallTurn = switchPlayer(playerBallTurn);
     }
 
     const switchPlayer = (turn) => !turn;
     const getMarker = (marker, position) => board[position] = marker;
-    return {board, getMarker, checkWin, playerBallTurn, playerTurn, switchPlayer}
+    return {board, getMarker, checkWin, playerBallTurn, playerTurn, switchPlayer, isBallTurn}
 })();
 
 ////////////////////////////////////////////////////////////////////////
@@ -72,9 +75,8 @@ const gameBoard = (() => {
 const displayController = (() => {
     const displayMarker = (position) => {
         const field = document.getElementById(`${position}`);
-
-        if(gameBoard.playerBallTurn === false) field.classList.add('paint-x');
-        if(gameBoard.playerBallTurn === true) field.classList.add('paint-ball');
+        if(gameBoard.isBallTurn() === false) field.classList.add('paint-x');
+        if(gameBoard.isBallTurn() === true) field.classList.add('paint-ball');
     }
     return {displayMarker};
 })();
@@ -82,13 +84,9 @@ const displayController = (() => {
 ////////////////////////////////////////////////////////////////////////
 
 const Player = (marker) => {
-    const getPlayerMarker = () => marker;
-
     const playerFields = [];
-
-    const getMove = (position) => {
-        playerFields.push(position);
-    }
+    const getPlayerMarker = () => marker;
+    const getMove = position => playerFields.push(position);
 
     return {getPlayerMarker, playerFields, getMove}
 }
