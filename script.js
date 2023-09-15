@@ -3,80 +3,68 @@ const board = document.querySelectorAll('.board-field');
 
 board.forEach((field) => {
     field.addEventListener('click', ()=> {
-        const id = getPositionById(field.id);
+        const id = parseInt(field.id);
+        playerX.getMove(id);
         console.log(id);
-        gameBoard.getMarker('x' ,id[0],id[1]);
-        displayController.displayMarker('x', id[0], id[1]);
-        gameBoard.win();
+
+        //gameBoard.getMarker('x' ,id); // saves on gabeBoard
+        displayController.displayMarker('x',id); // Prints
+        gameBoard.checkWin();
+
+        //gameBoard.playerTurn(); function not created yet
+
         console.log(gameBoard.board);
+        console.log(`player array -> ${playerX.playerFields}`);
     })
 });
 
 //Functions
 
-function getPositionById(id) {
-    const idArray = id.split('');
-    return idArray;
-}
 
 // Objects
 
 
 const gameBoard = (() => {
-    const board = [
-        ['','',''],
-        ['','',''],
-        ['','','']
-       ];
-    const getMarker = (marker, x, y) => board[x][y] = marker;
+    const board = [0,1,2,3,4,5,6,7,8];
 
-    const checkWhoWon = (position) => {
+    const winCombinations =[
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6]
+    ]
+    
+    const checkWin = () => {
+        const teste = winCombinations.some((combination) => {
+            const teste = combination.every(field => playerX.playerFields.includes(field));
+            if (teste) return true;
+            });
+        
+        if(teste) console.log('aq acabou');
+        
+        }
+    
+    
+    const getMarker = (marker, position) => board[position] = marker;
+
+    
+    const checkWhoWon = (position) => { // Depracted
         if(position === 'x') return playerX;
         if(position === 'o') return playerO;
     };
 
-    /*
-    const win = () => {
-        if(board[0][0] != '' && board[0][0] === board[0][1] && board[0][1] === board[0][2]) {
-            console.log('GANHOU');
-            checkWhoWon(board[0][0]);
-        }
-        if(board[0][0] != '' && board[0][0] === board[1][1] && board[1][1] === board[2][2]) {
-            console.log('GANHOU');
-            checkWhoWon(board[0][0]);
-        }
-        if(board[2][0] != '' && board[2][0] === board[2][1] && board[2][1] === board[2][2]) {
-            console.log('GANHOU');
-            checkWhoWon(board[0][0]);
-        }
-    }
-    */
-
-    const win = () => {
-        for(let i = 0; i < board.length; i++){
-
-            for(let j = 0; j < board[i].length; j++) {  
-                //Row verify
-                if(board[i][j] != '' && board[i][j] === board[i][j+1] && board[i][j+1] === board[i][j+2]) {
-                    console.log('GANHOU');
-                    checkWhoWon(board[i][j]);
-                }
-            }
-        }
-    }
-
-
-
-
-
-    return {board, getMarker, win, checkWhoWon}
+    return {board, getMarker, checkWin, checkWhoWon}
 })();
 
 //
 
 const displayController = (() => {
-    const displayMarker = (marker,x,y) => {
-        const field = document.getElementById(`${x}${y}`);
+    const displayMarker = (marker,position) => {
+        const field = document.getElementById(`${position}`);
         field.classList.add('paint');
     }
     return {displayMarker};
@@ -85,7 +73,14 @@ const displayController = (() => {
 
 const Player = (marker) => {
     const getPlayerMarker = () => marker;
-    return {getPlayerMarker}
+
+    const playerFields = [];
+
+    const getMove = (position) => {
+        playerFields.push(position);
+    }
+
+    return {getPlayerMarker, playerFields, getMove}
 }
 
 const players = [];
