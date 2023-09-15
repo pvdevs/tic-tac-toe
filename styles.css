@@ -18,6 +18,10 @@ body, p, h1, h2 ,h3{
     border: 1px solid #292929;
 }
 
-.paint{
+.paint-ball{
     background-color: red;
+}
+
+.paint-x {
+    background-color: blue;
 }

@@ -7,7 +7,7 @@ board.forEach((field) => {
         gameBoard.playerTurn(id);
 
         //gameBoard.getMarker('x' ,id); // saves on gabeBoard
-        displayController.displayMarker('x',id); // Prints
+        displayController.displayMarker(id); // Prints
         gameBoard.checkWin();
 
         //gameBoard.playerTurn(); function not created yet
@@ -59,27 +59,27 @@ const gameBoard = (() => {
             playerO.getMove(field);
             console.log('player O Field ' + playerO.playerFields);
         }
-
         playerBallTurn = switchPlayer(playerBallTurn);
     }
 
     const switchPlayer = (turn) => !turn;
-
     const getMarker = (marker, position) => board[position] = marker;
-
     return {board, getMarker, checkWin, playerBallTurn, playerTurn, switchPlayer}
 })();
 
-//
+////////////////////////////////////////////////////////////////////////
 
 const displayController = (() => {
-    const displayMarker = (marker,position) => {
+    const displayMarker = (position) => {
         const field = document.getElementById(`${position}`);
-        field.classList.add('paint');
+
+        if(gameBoard.playerBallTurn === false) field.classList.add('paint-x');
+        if(gameBoard.playerBallTurn === true) field.classList.add('paint-ball');
     }
     return {displayMarker};
 })();
 
+////////////////////////////////////////////////////////////////////////
 
 const Player = (marker) => {
     const getPlayerMarker = () => marker;
@@ -94,7 +94,6 @@ const Player = (marker) => {
 }
 
 const players = [];
-
 const playerX = Player('x');
 const playerO = Player('o');
 
