@@ -4,17 +4,15 @@ const board = document.querySelectorAll('.board-field');
 board.forEach((field) => {
     field.addEventListener('click', ()=> {
         const id = parseInt(field.id);
-        playerX.getMove(id);
-        console.log(id);
+        gameBoard.playerTurn(id);
 
         //gameBoard.getMarker('x' ,id); // saves on gabeBoard
         displayController.displayMarker('x',id); // Prints
         gameBoard.checkWin();
 
         //gameBoard.playerTurn(); function not created yet
-
-        console.log(gameBoard.board);
-        console.log(`player array -> ${playerX.playerFields}`);
+       // console.log(gameBoard.board);
+       // console.log(`player array -> ${playerX.playerFields}`);
     })
 });
 
@@ -26,7 +24,6 @@ board.forEach((field) => {
 
 const gameBoard = (() => {
     const board = [0,1,2,3,4,5,6,7,8];
-
     const winCombinations =[
         [0, 1, 2],
         [3, 4, 5],
@@ -37,27 +34,40 @@ const gameBoard = (() => {
         [0, 4, 8],
         [2, 4, 6]
     ]
-    
-    const checkWin = () => {
-        const teste = winCombinations.some((combination) => {
-            const teste = combination.every(field => playerX.playerFields.includes(field));
-            if (teste) return true;
-            });
-        
-        if(teste) console.log('aq acabou');
-        
+
+    let playerBallTurn = false;
+
+    const checkWin = (roundPlayer) => {
+        const fieldCheck = winCombinations.some((combination) => {
+            const playerXWon = combination.every(field => playerX.playerFields.includes(field));
+            const playerBallWon = combination.every(field => playerO.playerFields.includes(field));
+
+            if (playerXWon) console.log('X ganhou');
+            if (playerBallWon) console.log('O ganhou');
+        });
+    }
+
+    const playerTurn = (field) => {
+        //!playerBallTurn ? playerX.getMove(field) : playerO.getMove(field);
+        if(!playerBallTurn) {
+            console.log('Player X Turn!');
+            playerX.getMove(field);
+            console.log('player X Field ' + playerX.playerFields);
         }
-    
-    
+        if (playerBallTurn){
+            console.log('Player O Turn!');
+            playerO.getMove(field);
+            console.log('player O Field ' + playerO.playerFields);
+        }
+
+        playerBallTurn = switchPlayer(playerBallTurn);
+    }
+
+    const switchPlayer = (turn) => !turn;
+
     const getMarker = (marker, position) => board[position] = marker;
 
-    
-    const checkWhoWon = (position) => { // Depracted
-        if(position === 'x') return playerX;
-        if(position === 'o') return playerO;
-    };
-
-    return {board, getMarker, checkWin, checkWhoWon}
+    return {board, getMarker, checkWin, playerBallTurn, playerTurn, switchPlayer}
 })();
 
 //
