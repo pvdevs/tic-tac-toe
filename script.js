@@ -11,8 +11,7 @@ let gameIsOver = false;
 board.forEach(field => field.addEventListener('click', gameEvent));
 reset.addEventListener('click', resetGame);
 
-// Objects
-
+// Game board module
 const gameBoard = (() => {
     const board = [];
     const winningCombinations =[
@@ -27,27 +26,19 @@ const gameBoard = (() => {
     ]
 
     let playerBallTurn = false;
-    const isBallTurn = () => playerBallTurn; //Function used to export which round the game is currently;
+    let winningNumbers;
+
+    const isBallTurn = () => playerBallTurn;
+
     const switchPlayer = () => playerBallTurn = !playerBallTurn;
 
     const boardFill = position => board.push(position);
+
     const boardIsFull = () => board.length === 9;
 
     const positionFilled = position => board.includes(position);
 
-    let winningNumbers;
     const getWinningNumbers = () => winningNumbers;
-
-    const winner = () => {
-        winningCombinations.forEach((combination) => {
-            const playerXWon = combination.every(field => playerX.playerFields.includes(field));
-            const playerBallWon = combination.every(field => playerO.playerFields.includes(field));
-
-            if(playerXWon || playerBallWon) winningNumbers = combination;
-            if(playerXWon) winner = 'playerX';
-            if(playerBallWon)winner = 'playerO';
-        });
-    }
 
     const checkWin = () => {
         let winner;
@@ -57,12 +48,13 @@ const gameBoard = (() => {
             const playerBallWon = combination.every(field => playerO.playerFields.includes(field));
 
             if(playerXWon || playerBallWon) winningNumbers = combination;
+
             if(playerXWon) winner = 'playerX';
+
             if(playerBallWon)winner = 'playerO';
         });
 
-        if(winner != null) return winner;
-        else return null;
+        return winner;
     }
 
     const reset = () => {
@@ -71,7 +63,7 @@ const gameBoard = (() => {
         winningNumbers = undefined;
     }
 
-    return {board, checkWin, playerBallTurn, switchPlayer, isBallTurn, reset, winner, boardFill, positionFilled, boardIsFull, winningNumbers, getWinningNumbers}
+    return {board, checkWin, playerBallTurn, switchPlayer, isBallTurn, reset, boardFill, positionFilled, boardIsFull, winningNumbers, getWinningNumbers}
 })();
 
 
@@ -154,7 +146,7 @@ function gameEvent(event) {
       displayController.displayWinner(winner);
       gameIsOver = true;
 
-    } else if (gameBoard.boardIsFull() && winner === null) {
+    } else if (gameBoard.boardIsFull() && winner === undefined) {
       displayController.tie();
       gameIsOver = true;
     }
