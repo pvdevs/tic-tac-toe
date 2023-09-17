@@ -63,10 +63,19 @@ const gameBoard = (() => {
         winningNumbers = undefined;
     }
 
-    return {board, checkWin, playerBallTurn, switchPlayer, isBallTurn, reset, boardFill, positionFilled, boardIsFull, winningNumbers, getWinningNumbers}
+    return {
+            checkWin,
+            switchPlayer,
+            isBallTurn,
+            reset,
+            boardFill,
+            positionFilled,
+            boardIsFull,
+            getWinningNumbers
+           }
 })();
 
-
+// Display controller module
 const displayController = (() => {
     const tie = () => displayTurn.textContent = `Tie!`
 
@@ -100,24 +109,31 @@ const displayController = (() => {
             displayTurn.textContent = 'X is playing!';
         });
     };
-    return {displayCurrentPlayer, displayMove, displayWinnerLine, displayWinner, reset, tie};
+    return {
+            displayCurrentPlayer,
+            displayMove,
+            displayWinnerLine,
+            displayWinner,
+            reset,
+            tie
+           };
 })();
 
-//
-
+// Player Module
 const Player = () => {
     const playerFields = [];
+
     const getMove = position => playerFields.push(position);
 
     const reset = () => playerFields.length = 0;
+
     return {playerFields, getMove, reset}
 }
 
 const playerX = Player();
 const playerO = Player();
 
-//
-
+// Reset game
 function resetGame(){
     playerX.reset();
     playerO.reset();
@@ -126,6 +142,7 @@ function resetGame(){
     gameIsOver = false;
 }
 
+// Play a round of the game
 function playRound(field) {
     gameBoard.boardFill(field);
     gameBoard.isBallTurn() ? playerO.getMove(field) : playerX.getMove(field);
@@ -134,6 +151,7 @@ function playRound(field) {
     displayController.displayCurrentPlayer();
 }
 
+// Handle game events
 function gameEvent(event) {
     const thisField = parseInt(event.target.id);
     if (gameIsOver) return;
