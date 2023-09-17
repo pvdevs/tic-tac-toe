@@ -1,6 +1,6 @@
 console.log('Hello');
 const board = document.querySelectorAll('.board-field');
-const displayTurn = document.querySelector('.display-turn');
+const displayTurn = document.querySelector('.display');
 const reset = document.getElementById('reset-btn');
 //Functions
 game()
@@ -24,11 +24,6 @@ function game() {
                 gameBoard.playerTurn(id);
                 displayController.displayMarker(id); // Prints
                 
-                if (gameBoard.boardIsFull()){
-                    displayController.tie();
-                    return gameIsOver = true;
-                }
-                
                 displayController.displayCurrentPlayer();
                 
                 if(gameBoard.checkWin() === 'playerX') {
@@ -39,6 +34,10 @@ function game() {
                     displayController.displayWinner('playerO');
                     gameIsOver = true;
                     
+                }    
+                if (gameBoard.boardIsFull() && gameBoard.checkWin() === 'Keep'){
+                    displayController.tie();
+                    return gameIsOver = true;
                 }
             }
             if(gameIsOver && !gameBoard.boardIsFull)displayController.displayWinner(gameBoard.checkWin());
@@ -74,6 +73,9 @@ const gameBoard = (() => {
 
     const positionFilled = position => board.includes(position);
 
+    let winningCombination;
+    const exportCombination = () => winningCombination;
+
     const checkWin = () => {
         let winner;
 
@@ -81,12 +83,19 @@ const gameBoard = (() => {
             const playerXWon = combination.every(field => playerX.playerFields.includes(field));
             const playerBallWon = combination.every(field => playerO.playerFields.includes(field));
             
-            if(playerXWon) winner = 'playerX';
-            if(playerBallWon) winner = 'playerO';
+            if(playerXWon) {
+                winningCombination = combination;
+                winner = 'playerX';
+            }
+            if(playerBallWon){
+                winningCombination = combination;
+                winner = 'playerO';
+            } 
         });
 
         if(winner === 'playerX') return 'playerX';
         if(winner === 'playerO') return 'playerO';
+        else return 'Keep'
     }
 
     const playerTurn = (field) => {
@@ -97,7 +106,7 @@ const gameBoard = (() => {
 
     const reset = () => playerBallTurn = false; // need to clear the board too.
 
-    return {board, checkWin, playerBallTurn, playerTurn, switchPlayer, isBallTurn, reset, winner, keepWinner, boardFill, positionFilled, boardIsFull}
+    return {board, checkWin, playerBallTurn, playerTurn, switchPlayer, isBallTurn, reset, winner, keepWinner, boardFill, positionFilled, boardIsFull, winningCombination, exportCombination}
 })();
 
 ////////////////////////////////////////////////////////////////////////
@@ -106,10 +115,18 @@ const displayController = (() => {
 
     const tie = () => displayTurn.textContent = `Tie!`
 
-    const displayWinner = winner => displayTurn.textContent = `${winner} wins!`
+    const displayWinner = winner => {
+        const winningCombination = gameBoard.exportCombination();
+        winningCombination.forEach((field) => {
+            const tempField = document.getElementById(`${field}`);
+            tempField.style.backgroundColor = '#AAFF00';
+        })
+        displayTurn.textContent = `${winner} wins!`
+
+    } 
 
     const displayCurrentPlayer = () => {
-        gameBoard.isBallTurn() ? displayTurn.textContent = 'Ball is playing!' : displayTurn.textContent = 'X is playing!';
+        gameBoard.isBallTurn() ? displayTurn.textContent = 'O is playing!' : displayTurn.textContent = 'X is playing!';
         //gameBoard.isBallTurn
     }
 
