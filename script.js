@@ -25,28 +25,29 @@ function playRound(field) {
 }
 
 function gameEvent(event) {
-  if (gameIsOver) return;
-  const thisField = parseInt(event.target.id);
-  if (gameBoard.positionFilled(thisField)) return;
-  playRound(thisField)
-  const winner = gameBoard.checkWin();
-  if (winner === 'playerX' || winner === 'playerO') {
-    displayController.displayWinner(winner);
-    gameIsOver = true;
-  } else if (gameBoard.boardIsFull() && winner === 'any') {
-    displayController.tie();
-    gameIsOver = true;
-  }
+    const thisField = parseInt(event.target.id);
+    if (gameIsOver) return;
+    if (gameBoard.positionFilled(thisField)) return;
+
+    playRound(thisField)
+    const winner = gameBoard.checkWin();
+
+    if (winner === 'playerX' || winner === 'playerO') {
+      displayController.displayWinner(winner);
+      gameIsOver = true;
+
+    } else if (gameBoard.boardIsFull() && winner === null) {
+      displayController.tie();
+      gameIsOver = true;
+    }
 }
-
-
 
 // Objects
 
 
 const gameBoard = (() => {
     const board = [];
-    const winCombinations =[
+    const winningCombinations =[
         [0, 1, 2],
         [3, 4, 5],
         [6, 7, 8],
@@ -61,44 +62,45 @@ const gameBoard = (() => {
     const isBallTurn = () => playerBallTurn; //Function used to export which round the game is currently;
     const switchPlayer = () => playerBallTurn = !playerBallTurn;
 
-
     const boardFill = position => board.push(position);
-
     const boardIsFull = () => board.length === 9;
-
-    const winner = whoWon => whoWon
-    let keepWinner = ()=> winner;
 
     const positionFilled = position => board.includes(position);
 
-    let winningCombination;
-    const exportCombination = () => winningCombination;
+
+    let winningNumbers;
+    const exportCombination = () => winningNumbers;
+
+    const winner = () => {
+        winningCombinations.forEach((combination) => {
+            const playerXWon = combination.every(field => playerX.playerFields.includes(field));
+            const playerBallWon = combination.every(field => playerO.playerFields.includes(field));
+
+            if(playerXWon || playerBallWon) winningNumbers = combination;
+            if(playerXWon) winner = 'playerX';
+            if(playerBallWon)winner = 'playerO';
+        });
+
+    }
 
     const checkWin = () => {
         let winner;
 
-        winCombinations.forEach((combination) => {
+        winningCombinations.forEach((combination) => {
             const playerXWon = combination.every(field => playerX.playerFields.includes(field));
             const playerBallWon = combination.every(field => playerO.playerFields.includes(field));
             
-            if(playerXWon) {
-                winningCombination = combination;
-                winner = 'playerX';
-            }
-            if(playerBallWon){
-                winningCombination = combination;
-                winner = 'playerO';
-            } 
+            if(playerXWon || playerBallWon) winningNumbers = combination;
+            if(playerXWon) winner = 'playerX';
+            if(playerBallWon)winner = 'playerO';
         });
-
-        if(winner === 'playerX') return 'playerX';
-        if(winner === 'playerO') return 'playerO';
-        else return 'any'
+        if(winner != null) return winner;
+        else return null;
     }
 
     const reset = () => playerBallTurn = false; // need to clear the board too.
 
-    return {board, checkWin, playerBallTurn, switchPlayer, isBallTurn, reset, winner, keepWinner, boardFill, positionFilled, boardIsFull, winningCombination, exportCombination}
+    return {board, checkWin, playerBallTurn, switchPlayer, isBallTurn, reset, winner, boardFill, positionFilled, boardIsFull, winningNumbers, exportCombination}
 })();
 
 ////////////////////////////////////////////////////////////////////////
@@ -108,8 +110,8 @@ const displayController = (() => {
     const tie = () => displayTurn.textContent = `Tie!`
 
     const displayWinner = winner => {
-        const winningCombination = gameBoard.exportCombination();
-        winningCombination.forEach((field) => {
+        const winningNumbers = gameBoard.exportCombination();
+        winningNumbers.forEach((field) => {
             const tempField = document.getElementById(`${field}`);
             tempField.style.backgroundColor = '#AAFF00';
         })
