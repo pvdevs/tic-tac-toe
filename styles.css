@@ -104,3 +104,28 @@ h1{
     line-height: 100px;
     text-align: center;
 }
+
+
+.find-me {
+    padding: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.find-me p {
+    margin: 0;
+    font-size: 20px;
+    color: #363636;
+}
+
+.fa-github {
+    color: #363636;
+    transition: transform 0.3s ease-in-out;
+}
+
+.fa-github:hover {
+    transform: scale(1.4);
+    color: #000000;
+  }

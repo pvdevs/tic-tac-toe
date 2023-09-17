@@ -13,37 +13,41 @@ reset.addEventListener('click', (e) => {
     displayController.reset();
 });
 
+function playRound(field) {
+    gameBoard.boardFill(field);
+    gameBoard.isBallTurn() ? playerO.getMove(field) : playerX.getMove(field);
+    gameBoard.switchPlayer()
+    displayController.displayMove(field);
+    displayController.displayCurrentPlayer();
+}
+
 function game() {
     let gameIsOver = false;
+      
+    function gameEvent(event) {
+      if (gameIsOver) return;
+
+      const thisField = parseInt(event.target.id);
+
+      if (gameBoard.positionFilled(thisField)) return;
+      playRound(thisField)
+      const winner = gameBoard.checkWin();
+
+      if (winner === 'playerX' || winner === 'playerO') {
+        displayController.displayWinner(winner);
+        gameIsOver = true;
+      } else if (gameBoard.boardIsFull() && winner === 'any') {
+        displayController.tie();
+        gameIsOver = true;
+      }
+    }
+
     board.forEach((field) => {
-        field.addEventListener('click', ()=> { //try to put this event inside of another function, this way is really messy
-            if(!gameIsOver) {
-                const id = parseInt(field.id);
-                if (gameBoard.positionFilled(id)) return;
-                gameBoard.boardFill(id);
-                gameBoard.playerTurn(id);
-                displayController.displayMarker(id); // Prints
-                
-                displayController.displayCurrentPlayer();
-                
-                if(gameBoard.checkWin() === 'playerX') {
-                    displayController.displayWinner('playerX');
-                    gameIsOver = true;
-                    
-                }if(gameBoard.checkWin() === 'playerO') {
-                    displayController.displayWinner('playerO');
-                    gameIsOver = true;
-                    
-                }    
-                if (gameBoard.boardIsFull() && gameBoard.checkWin() === 'Keep'){
-                    displayController.tie();
-                    return gameIsOver = true;
-                }
-            }
-            if(gameIsOver && !gameBoard.boardIsFull)displayController.displayWinner(gameBoard.checkWin());
-        })
+        field.addEventListener('click', gameEvent);
     });
-}
+
+    }
+
 
 // Objects
 
@@ -63,6 +67,8 @@ const gameBoard = (() => {
 
     let playerBallTurn = false;
     const isBallTurn = () => playerBallTurn; //Function used to export which round the game is currently;
+    const switchPlayer = () => playerBallTurn = !playerBallTurn;
+
 
     const boardFill = position => board.push(position);
 
@@ -95,18 +101,12 @@ const gameBoard = (() => {
 
         if(winner === 'playerX') return 'playerX';
         if(winner === 'playerO') return 'playerO';
-        else return 'Keep'
+        else return 'any'
     }
-
-    const playerTurn = (field) => {
-        playerBallTurn ? playerO.getMove(field) : playerX.getMove(field);
-        playerBallTurn = switchPlayer(playerBallTurn);
-    }
-    const switchPlayer = turn => !turn;
 
     const reset = () => playerBallTurn = false; // need to clear the board too.
 
-    return {board, checkWin, playerBallTurn, playerTurn, switchPlayer, isBallTurn, reset, winner, keepWinner, boardFill, positionFilled, boardIsFull, winningCombination, exportCombination}
+    return {board, checkWin, playerBallTurn, switchPlayer, isBallTurn, reset, winner, keepWinner, boardFill, positionFilled, boardIsFull, winningCombination, exportCombination}
 })();
 
 ////////////////////////////////////////////////////////////////////////
@@ -125,12 +125,9 @@ const displayController = (() => {
 
     } 
 
-    const displayCurrentPlayer = () => {
-        gameBoard.isBallTurn() ? displayTurn.textContent = 'O is playing!' : displayTurn.textContent = 'X is playing!';
-        //gameBoard.isBallTurn
-    }
+    const displayCurrentPlayer = () => gameBoard.isBallTurn() ? displayTurn.textContent = 'O is playing!' : displayTurn.textContent = 'X is playing!';
 
-    const displayMarker = (position) => {
+    const displayMove = (position) => {
         const field = document.getElementById(`${position}`);
         if(gameBoard.isBallTurn() === false) field.classList.add('paint-x');
         if(gameBoard.isBallTurn() === true) field.classList.add('paint-ball');
@@ -142,7 +139,7 @@ const displayController = (() => {
             displayTurn.textContent = 'X is playing!'
         });
     };
-    return {displayCurrentPlayer, displayMarker, displayWinner, reset, tie};
+    return {displayCurrentPlayer, displayMove, displayWinner, reset, tie};
 })();
 
 ////////////////////////////////////////////////////////////////////////
