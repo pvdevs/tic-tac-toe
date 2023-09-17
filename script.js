@@ -3,15 +3,18 @@ const board = document.querySelectorAll('.board-field');
 const displayTurn = document.querySelector('.display');
 const reset = document.getElementById('reset-btn');
 //Functions
-game()
 
-reset.addEventListener('click', (e) => {
-    game();
+let gameIsOver = false;
+
+board.forEach(field => field.addEventListener('click', gameEvent));
+reset.addEventListener('click', resetGame);
+
+function resetGame(){
     playerX.reset();
     playerO.reset();
     gameBoard.reset();
     displayController.reset();
-});
+}
 
 function playRound(field) {
     gameBoard.boardFill(field);
@@ -21,32 +24,21 @@ function playRound(field) {
     displayController.displayCurrentPlayer();
 }
 
-function game() {
-    let gameIsOver = false;
-      
-    function gameEvent(event) {
-      if (gameIsOver) return;
+function gameEvent(event) {
+  if (gameIsOver) return;
+  const thisField = parseInt(event.target.id);
+  if (gameBoard.positionFilled(thisField)) return;
+  playRound(thisField)
+  const winner = gameBoard.checkWin();
+  if (winner === 'playerX' || winner === 'playerO') {
+    displayController.displayWinner(winner);
+    gameIsOver = true;
+  } else if (gameBoard.boardIsFull() && winner === 'any') {
+    displayController.tie();
+    gameIsOver = true;
+  }
+}
 
-      const thisField = parseInt(event.target.id);
-
-      if (gameBoard.positionFilled(thisField)) return;
-      playRound(thisField)
-      const winner = gameBoard.checkWin();
-
-      if (winner === 'playerX' || winner === 'playerO') {
-        displayController.displayWinner(winner);
-        gameIsOver = true;
-      } else if (gameBoard.boardIsFull() && winner === 'any') {
-        displayController.tie();
-        gameIsOver = true;
-      }
-    }
-
-    board.forEach((field) => {
-        field.addEventListener('click', gameEvent);
-    });
-
-    }
 
 
 // Objects
